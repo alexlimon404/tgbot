@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Backend;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Setting;
+use Telegram\Bot\Laravel\Facades\Telegram;
+
 class SettingController extends Controller
 {
     public function index ()
@@ -21,5 +23,28 @@ class SettingController extends Controller
             $setting->save();
         }
         return redirect()->route('admin.setting.index');
+    }
+
+    //Установка функции URI для webhook
+    public function setwebhook(Request $request)
+    {
+        $result = $this->sendTelegramData('setwebhook', [
+            'query' => ['url' => $request->url . '/' . \Telegram::getAccessToken()]
+        ]);
+        return redirect()->route('admin.setting.index')->with('status', $result);
+    }
+
+    public function getwebhookinfo (Request $request)
+    {
+        $result = $this->sendTelegramData('getwebhookinfo');
+        return redirect()->route('admin.setting.index')->with('status', $result);
+
+    }
+
+    public function sendTelegramData($route = '', $params = [], $method = 'POST')
+    {
+        $client = new \GuzzleHttp\Client( ['base_uri' => 'https://api.telegram.org/bot' . \Telegram::getAccessToken() . '/']);
+        $result = $client->request($method, $route, $params);
+        return (string) $result->getBody();
     }
 }

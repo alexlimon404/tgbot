@@ -31,6 +31,7 @@ class SettingController extends Controller
         $result = $this->sendTelegramData('setwebhook', [
             'query' => ['url' => $request->url . '/' . \Telegram::getAccessToken()]
         ]);
+        //return $result;
         return redirect()->route('admin.setting.index')->with('status', $result);
     }
 
